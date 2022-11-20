@@ -1,0 +1,42 @@
+version: "3.8"
+
+networks:
+  extra-virgin:
+
+services:
+  php-apache-environment:
+    container_name: php-apache
+    build: .
+    networks:
+      - extra-virgin
+    volumes:
+      - ./extra_virgin:/var/www/html/
+    ports:
+      - 8000:80
+  
+  mysql:
+    image: mysql:8.0.30
+    networks:
+      - extra-virgin
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: extra_virgin
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.2.0
+    networks:
+      - extra-virgin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+    # Wait for "mysql" container to start first
+    depends_on:
+      - mysql
+
+volumes:
+  dbdata:
